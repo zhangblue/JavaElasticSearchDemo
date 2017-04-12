@@ -47,12 +47,11 @@ public class ElasticSearchManager {
 
     /***
      * 获取批量入库对象
-     * @param client
      * @return
      */
-    public BulkProcessor getBulk(Client client) {
+    public BulkProcessor getBulk() {
         BulkProcessor bulkProcessor = BulkProcessor.builder(
-                client,
+                this.client,
                 new BulkProcessor.Listener() {
                     public void beforeBulk(long executionId,
                                            BulkRequest request) {
@@ -82,6 +81,8 @@ public class ElasticSearchManager {
      * 关闭es连接
      */
     public void closeElasticSearchConn() {
-        client.close();
+        if (client != null) {
+            client.close();
+        }
     }
 }
