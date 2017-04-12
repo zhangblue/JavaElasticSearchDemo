@@ -27,7 +27,12 @@ public class JavaToES {
 
     public static void main(String[] args) {
         JavaToES javaToES = new JavaToES();
-        javaToES.insertES();
+
+        javaToES.insertES();//测试批量出入
+        javaToES.backUpElasticsearchToLocalFile("index_demo", "type_demo", "localFile");//测试备份esindex到本地
+        javaToES.restoreElasticsearchFromLocalFile(10000, "localFile");//测试从文件恢复数据到es
+        javaToES.backUpElasticSearchIndex();//测试导出es的所有index名称
+
     }
 
     /***
