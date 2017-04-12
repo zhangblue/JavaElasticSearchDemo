@@ -1,6 +1,6 @@
 # JavaElasticSearchDemo
 
-## 本工程采用ElasticSearch使用2.3.3版本 Java采用1.8版本JDK。主要功能为java对elasticsearch的简单操作。
+## 本工程主要为java对elasticsearch的简单操作。<br>采用ElasticSearch使用2.3.3版本 Java采用1.8版本JDK。
 
 ### 主要功能代码说明：
 #### 1.将数据逐条插入到elasticsearch中
@@ -12,7 +12,7 @@ JavaToES.insertES()
 ```apple js
 @param _index 要备份的index名字
 @param _type 要备份的type名字
-@param filePath 备份到本地的文件路径
+@param _filePath 备份到本地的文件路径
 backUpElasticsearchToLocalFile(String _index, String _type, String filePath)
 
 ```
