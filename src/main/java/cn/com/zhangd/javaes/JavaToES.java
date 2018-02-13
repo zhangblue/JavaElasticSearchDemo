@@ -2,8 +2,11 @@ package cn.com.zhangd.javaes;
 
 import cn.com.zhangd.es.ElasticSearchManager;
 import cn.com.zhangd.utils.FileTools;
+import cn.com.zhangd.utils.GuavaFilesTools;
+import cn.com.zhangd.utils.LargeLineProcessor;
 import com.alibaba.fastjson.JSONObject;
 import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -24,14 +27,16 @@ import java.util.concurrent.TimeUnit;
 
 public class JavaToES {
 
-
     public static void main(String[] args) {
         JavaToES javaToES = new JavaToES();
 
         javaToES.insertES();//测试批量出入
-        javaToES.backUpElasticsearchToLocalFile("index_demo", "type_demo", "localFile");//测试备份esindex到本地
-        javaToES.restoreElasticsearchFromLocalFile(10000, "localFile");//测试从文件恢复数据到es
-        javaToES.backUpElasticSearchIndex();//测试导出es的所有index名称
+
+        //javaToES.backUpElasticsearchToLocalFile("index_demo", "type_demo", "localFile");//测试备份esindex到本地
+        //javaToES.restoreElasticsearchFromLocalFile(10000, "localFile");//测试从文件恢复数据到es
+        //javaToES.backUpElasticSearchIndex();//测试导出es的所有index名称
+
+        javaToES.searchElasticSearch();
 
     }
 
@@ -120,7 +125,6 @@ public class JavaToES {
                 vector.clear();
             }
         }
-
         //关闭ES连接
         elasticSearchManager.closeElasticSearchConn();
     }
@@ -211,5 +215,45 @@ public class JavaToES {
 
         List<String> listIndex = Arrays.asList(indexies);
         fileUtil.appendContentToFile("/home/hdfs/zhangd/elasticsearch_test/data/indexies", listIndex);
+    }
+
+    public void searchElasticSearch() {
+        GuavaFilesTools gft = new GuavaFilesTools();
+        //初始化es连接
+        ElasticSearchManager elasticSearchManager = new ElasticSearchManager();
+        try {
+            //建立es连接
+            elasticSearchManager.initElasticSearch("hanyingjun", "192.168.10.15", 9300);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        LargeLineProcessor largeLineProcessor = gft.readLargeFile("/home/hdfs/zhangd/test_ids", 1, 300000);
+
+        List<String> list = largeLineProcessor.getResult();
+
+        long begin = Calendar.getInstance().getTimeInMillis();
+        String[] straa = null;
+        Vector<String> ve = new Vector<String>(300000);
+        int size = 0;
+        try {
+            for (String str : list) {
+                straa = str.split("\t");
+                GetResponse response = elasticSearchManager.getESClient().prepareGet("track_hyj", "track", straa[0]).get();
+                ve.add(JSONObject.toJSON(response.getSource()).toString());
+                if (ve.size() % 5000 == 0) {
+                    System.out.println(ve.size());
+                }
+                size++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(list.get(size));
+        }finally {
+            elasticSearchManager.closeElasticSearchConn();
+        }
+
+        long end = Calendar.getInstance().getTimeInMillis();
+        System.out.println((end - begin) / 1000);
     }
 }

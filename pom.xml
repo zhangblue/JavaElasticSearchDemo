@@ -16,6 +16,13 @@
             <version>2.3.3</version>
         </dependency>
 
+        <!-- google guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
+        </dependency>
+
         <!--alibaba fastJson-->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -24,5 +31,35 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- create a single jar containing your application and all dependencies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- if you have a main class you want to automatically call when
+                                    running java -jar yourjar.jar -->
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
